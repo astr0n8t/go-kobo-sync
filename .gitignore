@@ -1,0 +1,4 @@
+x-tools/
+build/
+go-readwise-kobo-sync/
+.token
