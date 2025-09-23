@@ -1,4 +1,7 @@
 x-tools/
 build/
 go-readwise-kobo-sync/
+go-kobo-sync/
 .token
+*.exe
+sync_highlights
