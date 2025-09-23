@@ -8,16 +8,17 @@ default: build
 
 clean:
 	rm -rf x-tools/
-	rm -rf go-readwise-kobo-sync/
+	rm -rf go-kobo-sync/
 
 toolchain:
 	tar -xvzf lib/kobo.tar.gz -C .
 
 dev:
-	go build -o ./go-readwise-kobo-sync/sync_highlights
+	go build -o ./go-kobo-sync/sync_highlights
 
 build: toolchain
-	CGO_ENABLED=1 GOARCH=arm GOOS=linux CC=$(CC) CXX=$(CXX) go build -o ./go-readwise-kobo-sync/sync_highlights
-	cp -r ca-certs/ go-readwise-kobo-sync/
-	cp sync_highlights.sh go-readwise-kobo-sync/
-	touch go-readwise-kobo-sync/token.txt
+	CGO_ENABLED=1 GOARCH=arm GOOS=linux CC=$(CC) CXX=$(CXX) go build -o ./go-kobo-sync/sync_highlights
+	cp -r ca-certs/ go-kobo-sync/
+	cp sync_highlights.sh go-kobo-sync/
+	touch go-kobo-sync/config.txt
+	touch go-kobo-sync/template.md

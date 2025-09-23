@@ -15,7 +15,7 @@ import (
 // have to exist or you have to allow an unsecure connection which is just
 // bad practice
 // TODO: Read in the CA certs from this repo on compile time to prevent tampering
-const caCertPath = "/mnt/onboard/.adds/go-readwise-kobo-sync/ca-certs"
+const caCertPath = "/mnt/onboard/.adds/go-kobo-sync/ca-certs"
 
 // TODO: This function was chatgpt and its kinda garbo
 func loadCaCertsFromPath(dir string) (*x509.CertPool, error) {

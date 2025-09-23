@@ -1,0 +1,12 @@
+# WebDAV Configuration for go-kobo-sync
+# Copy this file to config.txt and update with your WebDAV server details
+
+# WebDAV server URL (required)
+webdav_url=https://your-webdav-server.com/remote.php/dav/files/username
+
+# WebDAV credentials (required)
+webdav_username=your_username
+webdav_password=your_password
+
+# Base path for storing highlights (optional, defaults to /kobo-highlights)
+webdav_path=/kobo-highlights
