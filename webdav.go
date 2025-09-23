@@ -10,6 +10,8 @@ import (
 	"github.com/studio-b12/gowebdav"
 )
 
+const lastSyncFile = ".sync_status"
+
 // WebDAV configuration
 type WebDAVConfig struct {
 	URL      string
@@ -40,7 +42,7 @@ func NewWebDAVClient(config *WebDAVConfig) *WebDAVClient {
 
 // GetLastSyncDate retrieves the last sync date from WebDAV server
 func (w *WebDAVClient) GetLastSyncDate() (time.Time, error) {
-	syncFilePath := path.Join(w.config.BasePath, "last_sync.txt")
+	syncFilePath := path.Join(w.config.BasePath, lastSyncFile)
 
 	data, err := w.client.Read(syncFilePath)
 	if err != nil {
@@ -55,7 +57,7 @@ func (w *WebDAVClient) GetLastSyncDate() (time.Time, error) {
 
 // UpdateLastSyncDate updates the last sync date on WebDAV server
 func (w *WebDAVClient) UpdateLastSyncDate(syncTime time.Time) error {
-	syncFilePath := path.Join(w.config.BasePath, "last_sync.txt")
+	syncFilePath := path.Join(w.config.BasePath, lastSyncFile)
 	dateStr := syncTime.Format(time.RFC3339)
 
 	return w.client.Write(syncFilePath, []byte(dateStr), 0644)
