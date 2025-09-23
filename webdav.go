@@ -114,8 +114,9 @@ func (w *WebDAVClient) SaveBookFile(bookTitle string, content []byte) error {
 }
 
 // sanitizeFilename removes or replaces characters that are problematic in filenames
+// Limits to 128 characters, only ASCII characters, and replaces spaces with underscores
 func sanitizeFilename(filename string) string {
-	// Replace problematic characters with underscores
+	// Replace problematic characters and spaces with underscores
 	replacer := strings.NewReplacer(
 		"/", "_",
 		"\\", "_",
@@ -126,17 +127,94 @@ func sanitizeFilename(filename string) string {
 		"<", "_",
 		">", "_",
 		"|", "_",
+		" ", "_", // Replace spaces with underscores
 	)
 
 	sanitized := replacer.Replace(filename)
 
-	// Trim spaces and dots from the ends
-	sanitized = strings.Trim(sanitized, " .")
+	// Convert non-ASCII characters to ASCII equivalents or remove them
+	var asciiOnly strings.Builder
+	for _, r := range sanitized {
+		if r <= 127 { // ASCII range
+			asciiOnly.WriteRune(r)
+		} else {
+			// Simple ASCII conversion for common characters
+			switch {
+			case r >= 'À' && r <= 'Ÿ': // Latin extended characters
+				// Convert accented characters to their base forms
+				base := convertAccentedChar(r)
+				if base != 0 {
+					asciiOnly.WriteRune(base)
+				} else {
+					asciiOnly.WriteRune('_')
+				}
+			default:
+				asciiOnly.WriteRune('_') // Replace other non-ASCII with underscore
+			}
+		}
+	}
+	sanitized = asciiOnly.String()
+
+	// Trim underscores and dots from the ends
+	sanitized = strings.Trim(sanitized, "_.")
 
 	// Ensure filename is not empty
 	if sanitized == "" {
 		sanitized = "unknown"
 	}
 
+	// Limit to 128 characters
+	if len(sanitized) > 128 {
+		sanitized = sanitized[:128]
+		// Ensure we don't end with an underscore after truncation
+		sanitized = strings.TrimRight(sanitized, "_")
+		if sanitized == "" {
+			sanitized = "unknown"
+		}
+	}
+
 	return sanitized
+}
+
+// convertAccentedChar converts common accented characters to their ASCII equivalents
+func convertAccentedChar(r rune) rune {
+	switch r {
+	// A variants
+	case 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å':
+		return 'A'
+	case 'à', 'á', 'â', 'ã', 'ä', 'å':
+		return 'a'
+	// E variants
+	case 'È', 'É', 'Ê', 'Ë':
+		return 'E'
+	case 'è', 'é', 'ê', 'ë':
+		return 'e'
+	// I variants
+	case 'Ì', 'Í', 'Î', 'Ï':
+		return 'I'
+	case 'ì', 'í', 'î', 'ï':
+		return 'i'
+	// O variants
+	case 'Ò', 'Ó', 'Ô', 'Õ', 'Ö':
+		return 'O'
+	case 'ò', 'ó', 'ô', 'õ', 'ö':
+		return 'o'
+	// U variants
+	case 'Ù', 'Ú', 'Û', 'Ü':
+		return 'U'
+	case 'ù', 'ú', 'û', 'ü':
+		return 'u'
+	// N variants
+	case 'Ñ':
+		return 'N'
+	case 'ñ':
+		return 'n'
+	// C variants
+	case 'Ç':
+		return 'C'
+	case 'ç':
+		return 'c'
+	default:
+		return 0 // No ASCII equivalent found
+	}
 }
