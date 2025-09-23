@@ -13,6 +13,9 @@ clean:
 dev:
 	go build -o ./go-kobo-sync/sync_highlights
 
+certs:
+	mkdir -p ca-certs && cd ca-certs && curl -LO https://curl.se/ca/cacert.pem
+
 build: 
 	CGO_ENABLED=1 GOARCH=arm GOOS=linux CC=$(CC) CXX=$(CXX) go build -o ./go-kobo-sync/sync_highlights
 	cp -r ca-certs/ go-kobo-sync/

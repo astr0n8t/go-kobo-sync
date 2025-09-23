@@ -5,3 +5,4 @@ go-kobo-sync/
 .token
 *.exe
 sync_highlights
+ca-certs/
