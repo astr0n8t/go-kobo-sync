@@ -6,3 +6,4 @@ go-kobo-sync/
 *.exe
 sync_highlights
 ca-certs/
+test_binary
