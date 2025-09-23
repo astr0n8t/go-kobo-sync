@@ -133,7 +133,7 @@ func main() {
 			// Parse existing highlights to avoid duplicates
 			existingHighlights := ParseExistingMarkdown(existingContent)
 			allHighlights = MergeHighlights(existingHighlights, highlights)
-			log.Printf("Merged %d existing highlights with %d new highlights for %s", 
+			log.Printf("Merged %d existing highlights with %d new highlights for %s",
 				len(existingHighlights), len(highlights), bookTitle)
 		} else {
 			allHighlights = highlights
@@ -163,6 +163,6 @@ func main() {
 		log.Printf("Warning: Could not update last sync date: %v", err)
 	}
 
-	log.Printf("Sync completed successfully. Processed %d books with %d highlights.", 
+	log.Printf("Sync completed successfully. Processed %d books with %d highlights.",
 		len(bookHighlights), highlightCount)
 }

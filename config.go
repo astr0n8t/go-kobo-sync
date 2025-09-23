@@ -9,9 +9,9 @@ import (
 
 // Configuration paths
 const (
-	configPath     = "/mnt/onboard/.adds/go-kobo-sync/config.txt"
-	templatePath   = "/mnt/onboard/.adds/go-kobo-sync/template.md"
-	dbLocation     = "/mnt/onboard/.kobo/KoboReader.sqlite"
+	configPath   = "/mnt/onboard/.adds/go-kobo-sync/config.txt"
+	templatePath = "/mnt/onboard/.adds/go-kobo-sync/template.md"
+	dbLocation   = "/mnt/onboard/.kobo/KoboReader.sqlite"
 )
 
 // Config represents the application configuration
@@ -25,17 +25,17 @@ func LoadConfig() (*Config, error) {
 	config := &Config{
 		WebDAV: &WebDAVConfig{},
 	}
-	
+
 	// Load WebDAV configuration
 	if err := loadWebDAVConfig(config.WebDAV); err != nil {
 		return nil, fmt.Errorf("failed to load WebDAV config: %w", err)
 	}
-	
+
 	// Load template if exists
 	if templateData, err := os.ReadFile(templatePath); err == nil {
 		config.Template = string(templateData)
 	}
-	
+
 	return config, nil
 }
 
@@ -46,22 +46,22 @@ func loadWebDAVConfig(webdavConfig *WebDAVConfig) error {
 		return fmt.Errorf("unable to open config file %s: %w", configPath, err)
 	}
 	defer file.Close()
-	
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		
+
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			continue
 		}
-		
+
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-		
+
 		switch key {
 		case "webdav_url":
 			webdavConfig.URL = value
@@ -73,11 +73,11 @@ func loadWebDAVConfig(webdavConfig *WebDAVConfig) error {
 			webdavConfig.BasePath = value
 		}
 	}
-	
+
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading config file: %w", err)
 	}
-	
+
 	// Validate required fields
 	if webdavConfig.URL == "" {
 		return fmt.Errorf("webdav_url is required")
@@ -91,6 +91,6 @@ func loadWebDAVConfig(webdavConfig *WebDAVConfig) error {
 	if webdavConfig.BasePath == "" {
 		webdavConfig.BasePath = "/kobo-highlights"
 	}
-	
+
 	return nil
 }

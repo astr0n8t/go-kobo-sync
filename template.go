@@ -35,7 +35,7 @@ func GenerateMarkdown(bookTitle string, highlights []Highlight, templateStr stri
 	if templateStr == "" {
 		templateStr = defaultTemplate
 	}
-	
+
 	// Sort highlights by timestamp
 	sort.Slice(highlights, func(i, j int) bool {
 		if highlights[i].Timestamp == nil || highlights[j].Timestamp == nil {
@@ -49,24 +49,24 @@ func GenerateMarkdown(bookTitle string, highlights []Highlight, templateStr stri
 		}
 		return t1.Before(t2)
 	})
-	
+
 	bookHighlights := BookHighlights{
 		Title:      bookTitle,
 		Highlights: highlights,
 		SyncDate:   time.Now(),
 	}
-	
+
 	tmpl, err := template.New("book").Parse(templateStr)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, bookHighlights)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return buf.Bytes(), nil
 }
 
@@ -78,18 +78,18 @@ func MergeHighlights(existing []Highlight, new []Highlight) []Highlight {
 		key := generateHighlightKey(h)
 		existingMap[key] = true
 	}
-	
+
 	// Add new highlights that don't already exist
 	var merged []Highlight
 	merged = append(merged, existing...)
-	
+
 	for _, h := range new {
 		key := generateHighlightKey(h)
 		if !existingMap[key] {
 			merged = append(merged, h)
 		}
 	}
-	
+
 	return merged
 }
 
@@ -114,14 +114,14 @@ func generateHighlightKey(h Highlight) string {
 // This is a simple parser - could be enhanced for more complex markdown
 func ParseExistingMarkdown(content []byte) []Highlight {
 	var highlights []Highlight
-	
+
 	// Simple parsing - this would need to be more sophisticated
 	// for complex markdown structures. For now, we'll assume the
 	// format matches our template output.
-	
+
 	// TODO: Implement proper markdown parsing if needed
 	// For now, return empty slice to avoid duplicate highlights
 	// The WebDAV merge strategy will handle this by appending new highlights
-	
+
 	return highlights
 }
