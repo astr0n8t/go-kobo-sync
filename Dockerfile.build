@@ -1,0 +1,11 @@
+FROM ubuntu:24.04
+
+RUN apt update && apt install ca-certificates golang gcc make tar -y && mkdir /work
+
+WORKDIR /work
+
+COPY ./lib/kobo.tar.gz /kobo-lib/
+
+RUN cd /kobo-lib/ && tar -xvzf kobo.tar.gz -C . && rm kobo.tar.gz
+
+CMD [ "make" ]
