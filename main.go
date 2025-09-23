@@ -11,23 +11,24 @@ import (
 // SQL query to get highlights after a specific date
 const queryStringWithDate = `
 SELECT
-    Text as Text,
-    Annotation as Note,
-    VolumeID as Book,
-    DateCreated as Timestamp
-FROM Bookmark
-WHERE Type = 'highlight' AND DateCreated > ?;
+    b.Text AS Text,
+    b.Annotation AS Note,
+    c.Title AS Book,
+    b.DateCreated AS Timestamp
+FROM Bookmark b
+JOIN content c ON b.VolumeID = c.ContentID
+WHERE b.DateCreated > '?';
 `
 
 // SQL query to get all highlights (for initial sync)
 const queryStringAll = `
 SELECT
-    Text as Text,
-    Annotation as Note,
-    VolumeID as Book,
-    DateCreated as Timestamp
-FROM Bookmark
-WHERE Type = 'highlight';
+    b.Text AS Text,
+    b.Annotation AS Note,
+    c.Title AS Book,
+    b.DateCreated AS Timestamp
+FROM Bookmark b
+JOIN content c ON b.VolumeID = c.ContentID
 `
 
 // TODO: Add more fields, or some ways to set what type of highlight this is
