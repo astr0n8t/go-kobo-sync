@@ -15,9 +15,7 @@ type BookHighlights struct {
 }
 
 // Default markdown template for book highlights
-const defaultTemplate = `# {{.Title}}
-
-*Synced on {{.SyncDate.Format "2006-01-02 15:04:05"}}*
+const defaultTemplate = `
 
 {{range .Highlights}}
 ---
@@ -29,6 +27,10 @@ const defaultTemplate = `# {{.Title}}
 {{if .Note}}*{{.Note}}*{{end}}
 
 {{end}}`
+
+const defaultHeaderTemplate = `# {{.Title}}
+
+`
 
 // GenerateMarkdown creates markdown content for a book's highlights using a template
 func GenerateMarkdown(bookTitle string, highlights []Highlight, templateStr string) ([]byte, error) {
@@ -70,58 +72,26 @@ func GenerateMarkdown(bookTitle string, highlights []Highlight, templateStr stri
 	return buf.Bytes(), nil
 }
 
-// MergeHighlights merges existing highlights with new ones, avoiding duplicates
-func MergeHighlights(existing []Highlight, new []Highlight) []Highlight {
-	// Create a map of existing highlights for deduplication
-	existingMap := make(map[string]bool)
-	for _, h := range existing {
-		key := generateHighlightKey(h)
-		existingMap[key] = true
+func GenerateMarkdownHeader(bookTitle string, templateStr string) ([]byte, error) {
+	if templateStr == "" {
+		templateStr = defaultHeaderTemplate
 	}
 
-	// Add new highlights that don't already exist
-	var merged []Highlight
-	merged = append(merged, existing...)
-
-	for _, h := range new {
-		key := generateHighlightKey(h)
-		if !existingMap[key] {
-			merged = append(merged, h)
-		}
+	bookHighlights := BookHighlights{
+		Title:    bookTitle,
+		SyncDate: time.Now(),
 	}
 
-	return merged
-}
-
-// generateHighlightKey creates a unique key for a highlight to detect duplicates
-func generateHighlightKey(h Highlight) string {
-	var key string
-	if h.Text != nil {
-		key += *h.Text
+	tmpl, err := template.New("book").Parse(templateStr)
+	if err != nil {
+		return nil, err
 	}
-	key += "|"
-	if h.Note != nil {
-		key += *h.Note
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, bookHighlights)
+	if err != nil {
+		return nil, err
 	}
-	key += "|"
-	if h.Timestamp != nil {
-		key += *h.Timestamp
-	}
-	return key
-}
 
-// ParseExistingMarkdown extracts highlights from existing markdown content
-// This is a simple parser - could be enhanced for more complex markdown
-func ParseExistingMarkdown(content []byte) []Highlight {
-	var highlights []Highlight
-
-	// Simple parsing - this would need to be more sophisticated
-	// for complex markdown structures. For now, we'll assume the
-	// format matches our template output.
-
-	// TODO: Implement proper markdown parsing if needed
-	// For now, return empty slice to avoid duplicate highlights
-	// The WebDAV merge strategy will handle this by appending new highlights
-
-	return highlights
+	return buf.Bytes(), nil
 }

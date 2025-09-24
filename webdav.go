@@ -78,22 +78,25 @@ func (w *WebDAVClient) GetBookFile(bookTitle string) ([]byte, error) {
 }
 
 // SaveBookFile atomically saves a book's markdown file to WebDAV server
-func (w *WebDAVClient) SaveBookFile(bookTitle string, content []byte) error {
+func (w *WebDAVClient) SaveBookFile(bookTitle string, header []byte, content []byte) error {
 	filename := sanitizeFilename(bookTitle) + ".md"
 	filePath := path.Join(w.config.BasePath, filename)
 	backupPath := filePath + ".backup"
 	tempPath := filePath + ".tmp"
+	var existingData []byte
 
 	// Step 1: Create backup if file exists
 	_, err := w.client.Stat(filePath)
 	if err == nil {
-		existingData, err := w.client.Read(filePath)
-		if err == nil {
-			if err := w.client.Write(backupPath, existingData, 0644); err != nil {
-				return fmt.Errorf("failed to create backup: %w", err)
-			}
+		existingData, err = w.client.Read(filePath)
+		if err != nil {
+			return fmt.Errorf("failed to get previous data : %w", err)
+		} else {
+			header = existingData
 		}
 	}
+
+	content = append(header, content...)
 
 	// Step 2: Write to temporary file
 	if err := w.client.Write(tempPath, content, 0644); err != nil {
@@ -101,7 +104,7 @@ func (w *WebDAVClient) SaveBookFile(bookTitle string, content []byte) error {
 	}
 
 	// Step 3: Move temp file to final location (atomic operation)
-	if err := w.client.Rename(tempPath, filePath, false); err != nil {
+	if err := w.client.Rename(tempPath, filePath, true); err != nil {
 		// Clean up temp file on failure
 		w.client.Remove(tempPath)
 		return fmt.Errorf("failed to move temp file to final location: %w", err)
@@ -118,16 +121,18 @@ func (w *WebDAVClient) SaveBookFile(bookTitle string, content []byte) error {
 func sanitizeFilename(filename string) string {
 	// Replace problematic characters and spaces with underscores
 	replacer := strings.NewReplacer(
-		"/", "_",
-		"\\", "_",
-		":", "_",
-		"*", "_",
-		"?", "_",
-		"\"", "_",
-		"<", "_",
-		">", "_",
-		"|", "_",
-		" ", "_", // Replace spaces with underscores
+		"/", "",
+		"\\", "",
+		":", "",
+		"*", "",
+		"?", "",
+		"\"", "",
+		"<", "",
+		">", "",
+		"|", "",
+		"(", "",
+		")", "",
+		".", "",
 	)
 
 	sanitized := replacer.Replace(filename)
@@ -146,10 +151,10 @@ func sanitizeFilename(filename string) string {
 				if base != 0 {
 					asciiOnly.WriteRune(base)
 				} else {
-					asciiOnly.WriteRune('_')
+					asciiOnly.WriteRune(' ')
 				}
 			default:
-				asciiOnly.WriteRune('_') // Replace other non-ASCII with underscore
+				asciiOnly.WriteRune(' ') // Replace other non-ASCII with space
 			}
 		}
 	}
@@ -162,6 +167,8 @@ func sanitizeFilename(filename string) string {
 	if sanitized == "" {
 		sanitized = "unknown"
 	}
+
+	sanitized = strings.Join(strings.Fields(sanitized), " ")
 
 	// Limit to 128 characters
 	if len(sanitized) > 128 {

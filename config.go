@@ -9,15 +9,17 @@ import (
 
 // Configuration paths
 const (
-	configPath   = "/mnt/onboard/.adds/go-kobo-sync/config.txt"
-	templatePath = "/mnt/onboard/.adds/go-kobo-sync/template.md"
-	dbLocation   = "/mnt/onboard/.kobo/KoboReader.sqlite"
+	configPath         = "/mnt/onboard/.adds/go-kobo-sync/config"
+	templatePath       = "/mnt/onboard/.adds/go-kobo-sync/template.md"
+	headerTemplatePath = "/mnt/onboard/.adds/go-kobo-sync/header_template.md"
+	dbLocation         = "/mnt/onboard/.kobo/KoboReader.sqlite"
 )
 
 // Config represents the application configuration
 type Config struct {
-	WebDAV   *WebDAVConfig
-	Template string
+	WebDAV         *WebDAVConfig
+	Template       string
+	HeaderTemplate string
 }
 
 // LoadConfig loads configuration from the config file
@@ -34,6 +36,10 @@ func LoadConfig() (*Config, error) {
 	// Load template if exists
 	if templateData, err := os.ReadFile(templatePath); err == nil {
 		config.Template = string(templateData)
+	}
+	// Load header template if exists
+	if templateData, err := os.ReadFile(headerTemplatePath); err == nil {
+		config.HeaderTemplate = string(templateData)
 	}
 
 	return config, nil

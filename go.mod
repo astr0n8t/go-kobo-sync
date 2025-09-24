@@ -1,4 +1,4 @@
-module github.com/isaacgr/readwise_sync
+module github.com/astr0n8t/go-kobo-sync
 
 go 1.24.4
 
