@@ -29,6 +29,18 @@ make install
 
 ```
 
+### NickelMenu Install (Optional)
+
+You can add options to [NickelMenu](https://pgaskin.net/NickelMenu/) that allow you to manually trigger syncing and to manage the auto-sync hook.
+
+### AutoSyncing (Optional)
+
+If you want to sync every time the device connects to WiFi, simply SSH on and run the following command on your Kobo or select install on your NickelMenu:
+```
+cp /mnt/onboard/.adds/go-kobo-sync/97-synchighlights.rules /etc/udev/rules.d/
+```
+
+Similarly to uninstall the auto sync hook just remove the file from udev.
 
 ## Configuration
 
@@ -58,14 +70,6 @@ webdav_path=/kobo-highlights
   - `{{.Note}}` - Your annotation/note
   - `{{.Timestamp}}` - When the highlight was created
 
-## Nickle Menu Integration
-
-Add this to your Nicklemenu config:
-
-```
-menu_item:main:Sync Highlights to WebDAV:cmd_output:5000:/mnt/onboard/.adds/go-kobo-sync/sync_highlights.sh
-```
-
 ## How It Works
 
 1. **First Run**: Syncs all existing highlights and creates a `.last_sync` file on your WebDAV server
@@ -87,3 +91,11 @@ menu_item:main:Sync Highlights to WebDAV:cmd_output:5000:/mnt/onboard/.adds/go-k
 
 Place your CA certificates in the `ca-certs/` directory for HTTPS WebDAV servers. By default, the Mozilla CA bundle is grabbed with `make certs` in order to support Let's Encrypt.
 
+
+## Debugging
+
+If for some reason you run into any issues, you can enable logging in the `exec_on_wifi_add.sh` script and then logs will be written to `/mnt/onboard/.adds/go-kobo-sync/log` on every attempted run.
+
+If you need to reset and re-sync everything, just remove the `.last_sync` file from your WebDAV server.  The sync is append only so after a sync has been made and you modify the respective file generated the annotation will not come back but new annotations for that book will be appended to that file.
+
+If you run into any issues please open an issue but know that I consider this extremely beta software and don't have a lot of free time to support it.
