@@ -2,6 +2,10 @@
 
 Sync Kobo highlights to a WebDAV server in markdown format. Only syncs highlights created since the last sync.
 
+## Motivation
+
+I use this in conjunction with the [Obsidian Remotely Save](https://github.com/remotely-save/remotely-save) plugin to sync my Kobo annotations into my Obsidian vault using WebDAV.  Since it generates Markdown files, you could use it with whatever you wanted.  If you don't want to use WebDAV, you should be able to use this repo as a stepping stone to implementing whatever sync technology you wanted like I did originally.
+
 ## Features
 
 - **WebDAV Integration**: Sync highlights to any WebDAV-compatible server (Nextcloud, ownCloud, etc.)
