@@ -1,0 +1,1 @@
+KERNEL=="wlan*", ACTION=="add", RUN+="/mnt/onboard/.adds/go-kobo-sync/exec_on_wifi_add.sh"

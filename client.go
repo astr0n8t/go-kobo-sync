@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -77,4 +78,21 @@ func GetClient() *http.Client {
 		},
 	}
 	return client
+}
+
+func HasIP(interfaceName string) (bool, error) {
+	ief, err := net.InterfaceByName(interfaceName)
+	if err != nil {
+		return false, err
+	}
+	addrs, err := ief.Addrs()
+	if err != nil {
+		return false, err
+	}
+	for _, addr := range addrs {
+		if ip := addr.(*net.IPNet).IP.To4(); ip != nil {
+			return true, nil
+		}
+	}
+	return false, nil
 }

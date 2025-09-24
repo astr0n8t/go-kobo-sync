@@ -21,17 +21,19 @@ certs:
 
 build: 
 	CGO_ENABLED=1 GOARCH=arm GOOS=linux CC=$(CC) CXX=$(CXX) go build -o ./go-kobo-sync/sync_highlights
-	cp -r ca-certs/ go-kobo-sync/
-	cp sync_highlights.sh go-kobo-sync/
-	cp --update=none example/config go-kobo-sync/config
-	cp --update=none example/template.md go-kobo-sync/template.md
-	cp --update=none example/header_template.md go-kobo-sync/header_template.md
 
 docker-build:
 	docker buildx build --platform linux/amd64 --file ./Dockerfile.build --tag go-kobo-sync:build .
 	docker run --platform linux/amd64 --rm -it -v `pwd`:/work go-kobo-sync:build
+	cp -r ca-certs/ go-kobo-sync/
+	cp install/* go-kobo-sync/
+	cp --update=none example/config go-kobo-sync/config
+	cp --update=none example/template.md go-kobo-sync/template.md
+	cp --update=none example/header_template.md go-kobo-sync/header_template.md
 
 push-to-device:
 	mkdir -p $(KOBO_PATH)/.adds/go-kobo-sync/
 	cp -r go-kobo-sync/* $(KOBO_PATH)/.adds/go-kobo-sync/
 
+nm-install:
+	cat install/nm.config >> $(KOBO_PATH)/.adds/nm/config

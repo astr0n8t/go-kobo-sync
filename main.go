@@ -48,6 +48,25 @@ func main() {
 		log.Fatalf("Unable to load configuration. Error [%s]\n", err)
 	}
 
+	networkCheck := false
+	timeout := 9
+	for range timeout {
+		hasIP, err := HasIP("wlan0")
+		if err == nil && hasIP {
+			networkCheck = true
+			break
+		} else {
+			time.Sleep(time.Second)
+		}
+	}
+	if !networkCheck {
+		log.Fatalf("Timed out waiting for WiFi to connect\n")
+	}
+
+	if err != nil {
+		log.Fatalf("Unable to check network status. Error [%s]\n", err)
+	}
+
 	// Create WebDAV client
 	webdavClient := NewWebDAVClient(config.WebDAV)
 
@@ -73,12 +92,7 @@ func main() {
 		rows, err = db.Query(queryStringAll)
 	} else {
 		// Get highlights since last sync
-		lastSyncSplit := strings.Split(lastSync.Format(time.RFC3339), "-")
-		lastSyncString := ""
-		// Strip timezone information for sqlite query
-		if len(lastSyncSplit) > 2 {
-			lastSyncString += lastSyncSplit[0] + "-" + lastSyncSplit[1] + "-" + lastSyncSplit[2]
-		}
+		lastSyncString := lastSync.Format(time.RFC3339)
 		log.Printf("Retrieving highlights since %s\n", lastSyncString)
 		rows, err = db.Query(queryStringWithDate, lastSyncString)
 	}
@@ -162,7 +176,7 @@ func main() {
 	}
 
 	// Update last sync date
-	syncTime := time.Now()
+	syncTime := time.Now().UTC()
 	err = webdavClient.UpdateLastSyncDate(syncTime)
 	if err != nil {
 		log.Printf("Warning: Could not update last sync date: %v\n", err)

@@ -1,14 +1,9 @@
-
-{{range .Highlights}}
+{{- range .Highlights}}
 ### {{.Timestamp}}
-
-{{if .Text}}
+{{- if .Text}}
 > {{.Text}}
-{{end}}
-
-{{if .Note}}
+{{- end}}
+{{- if .Note}}
 **My Note:** {{.Note}}
-{{end}}
-
-{{end}}
-
+{{- end}}
+{{- end}}

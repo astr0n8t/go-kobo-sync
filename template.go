@@ -19,13 +19,9 @@ const defaultTemplate = `
 
 {{range .Highlights}}
 ---
-
 **{{.Timestamp}}**
-
 {{if .Text}}> {{.Text}}{{end}}
-
 {{if .Note}}*{{.Note}}*{{end}}
-
 {{end}}`
 
 const defaultHeaderTemplate = `# {{.Title}}
@@ -51,6 +47,16 @@ func GenerateMarkdown(bookTitle string, highlights []Highlight, templateStr stri
 		}
 		return t1.Before(t2)
 	})
+
+	for i := range len(highlights) {
+		timestamp, err := time.Parse("2006-01-02T15:04:05.000", *highlights[i].Timestamp)
+		if err != nil {
+			continue
+		}
+
+		formattedTimestamp := timestamp.Format(time.RFC1123)
+		highlights[i].Timestamp = &formattedTimestamp
+	}
 
 	bookHighlights := BookHighlights{
 		Title:      bookTitle,
